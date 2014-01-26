@@ -1,2 +1,2 @@
 <title>Deepak</title>
-<b>{$bla}</b>
+<b></b>

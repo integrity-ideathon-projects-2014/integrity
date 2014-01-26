@@ -1,0 +1,63 @@
+﻿<!DOCTYPE html>
+    <head lang="en-us">
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>User From</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="css/normalize.css">
+		<link rel="stylesheet" href="css/main.css">
+        <script src="js/jquery203.js"></script>
+		<script>
+			$(document).ready(function(){
+				if( typeof document.createElement('input').placeholder !== "undefined"){
+					$.each($('.label'),  function(i){
+						$(this).addClass('label-hidden');
+					});
+				}
+			});
+		</script>
+	</head>
+	<body>
+		<div class="main">
+			<h1 id="title">Create an Account</h1>
+			<div id="main-form">
+				<form id="login-form">
+					<label class="label" for="name">Name</label>
+					<input type="text" id="name" name="name" placeholder="Name">
+
+					<label class="label" for="email">Email</label>
+					<input type="text" id="email" name="email" placeholder="Email">
+
+					<label class="label" for="password">Password</label>
+					<input type="password" id="password" name="password" placeholder="Password">
+
+					<label class="label" for="age">Age</label>
+					<input type="text" id="age" name="age" placeholder="Age">
+					
+					<label class="label" for="age">Gender</label>
+					<select id="gender">
+						<option>Male</option>
+						<option>Female</option>
+					</select>
+
+					<label class="label" for="country">Country</label>
+					<input type="text" id="country" name="country" placeholder="Country">
+
+					<label class="label" for="city">City</label>
+					<input type="text" id="city" name="city" placeholder="City">
+
+					<label class="label" for="qualification">Qualification</label>
+					<input type="text" id="qualification" name="qualification" placeholder="Qualification">
+
+					<label class="label" for="profession">Profession</label>
+					<input type="text" id="profession" name="profession" placeholder="Profession">
+
+					<label class="label" for="organization">Organization</label>
+					<input type="text" id="organization" name="organization" placeholder="Organization">
+					
+					<input type="submit" value="Submit" id="submit">
+				</form>
+			</div>
+		</div>
+	</body>
