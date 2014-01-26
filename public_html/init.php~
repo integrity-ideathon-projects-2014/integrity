@@ -1,0 +1,37 @@
+<?php 
+
+include_once('../lib/core/init.inc.php');
+
+$db = new Database; 
+#$ar = array(
+#    'str question' => 'what is my name',
+#    'int answer_type' => 8);
+#if( $db->insert('question', $ar)){
+#    echo "success";
+#}else{
+#    echo "no";
+#}
+
+$sql = "select * from question";
+$db->sql($sql);
+echo $db->numResults;
+print_r($db->keys);
+#print_r( $db->results);
+
+#$ar = array(
+#    'str question' => 'what is my is',
+#    'int answer_type' => 8);
+#if($db->update('question', $ar, 'id=4')){
+#	echo 'success';
+#}else{
+#	echo 'no';
+#}
+#echo $db->affectedRows;
+
+#;
+#if($db->delete('question',2)){
+#	echo "success";
+#}else{
+#	echo "no";
+#}
+#echo $db->affectedRows;

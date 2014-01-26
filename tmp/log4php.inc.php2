@@ -1,0 +1,37 @@
+<?php
+
+return array(
+    'appenders' => array(
+        'myConsoleAppender' => array(
+            'class' => 'LoggerAppenderConsole'
+        ),
+        'myFileAppender' => array(
+            'class' => 'LoggerAppenderRollingFile',
+            'layout' => array(
+                'class' => 'LoggerLayoutPattern',
+                'params' => array(
+                    'conversionPattern' => '%date %logger %-5level %msg%n'
+                )
+            ),
+            'params' => array(
+                'file' => dirname(LIB_PATH).DS.'logs'.DS.'file.log',
+                'maxFileSize' => '1MB',
+                'maxBackupIndex' => 5,
+            ),
+        ),
+    ),
+    'loggers' => array(
+        'foo' => array(
+            'appnenders' => array(
+                0 => 'myFileAppender'
+            )
+        )
+    ),
+    'renders' => array(),
+    'rootLogger' => array(
+        'level' => 'DEBUG',
+        'appenders' => array(
+            0 => 'myConsoleAppender'
+        )
+    ),
+);

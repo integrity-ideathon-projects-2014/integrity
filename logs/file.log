@@ -1,0 +1,4 @@
+09.01.2014 06:26:30,913 | Database FATAL SQLSTATE[42S02]: Base table or view not found: 1146 Table 'deepsLIB.question' doesn't exist
+10.01.2014 06:13:10,315 | Database FATAL SQLSTATE[42S02]: Base table or view not found: 1146 Table 'deepsLIB.question' doesn't exist
+10.01.2014 08:04:33,320 | Database FATAL SQLSTATE[42000]: Syntax error or access violation: 1103 Incorrect table name ''
+12.01.2014 07:30:20,384 | Database FATAL SQLSTATE[42000]: Syntax error or access violation: 1103 Incorrect table name ''

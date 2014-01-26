@@ -1,0 +1,11 @@
+@author         [name] [<email address>]
+@copyright      [description]                       @copyright 1997-2005 The PHP Group
+@license        [<url>] [name]                      @license GPL
+                                                    @license http://opensource.org/licenses/gpl-license.php GNU Public License
+@param          [Type] [name] [<description>]       @param mixed[] $items Array structure to count the elements of.
+@return         [Type] [<description>]              @return integer Indicates the number of items.
+                                                    @return string|null The label's text or null if none provided.
+@var            @var [Type] [<description>]         @var object Description
+@version        [<vector>] [<description>]          @version GIT: $Id$ In development. Very unstable.
+
+./phpdoc -d /opt/lampp/htdocs/deepsLIB/lib/ -f /opt/lampp/htdocs/deepsLIB/lib/class/db_connect.class.php -t ~/Pictures/new --ignore "*/log4php/,*/smarty/"

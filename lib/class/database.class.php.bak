@@ -1,0 +1,297 @@
+<?php
+
+/* Database SQL */
+    
+/**
+ * Database SQL (query, insert, update, delete) 
+ *
+ * PHP version 5
+ *
+ * LICENSE: This source file is subject to the ... License, available
+ * at http://
+ *
+ * @author      Deepak Adhikari <deeps.adhi@gmail.com>
+ * @copyright   2013
+ * @license     http://
+ * @version     1.0.0
+ */
+
+/**
+ * Load database configuration file
+ */
+require_once(LIB_PATH.DS.'class'.DS.'db_connect.class.php');
+
+class Database
+{
+    /**
+     * Stores a database object
+     *
+     * @var object A database object
+     */
+    private $_db;
+
+    /**
+     * Stores SQL query
+     *
+     * @var string A SQL query
+     */
+    private $_sql;
+
+    /**
+     * Stores a PDO statement
+     *
+     * @var string A PDO statement
+     */
+    private $_stmt;
+
+    /**
+     * Stores paramater for SQL
+     *
+     * @var array Paramaters to execute query
+     */
+    private $_params;
+
+    /**
+     * Stores data type of keys
+     *
+     * @var array Data type of keys
+     */
+    private $_dataTypes;
+
+    /**
+     * Stores lastError, result, keys, lastQuery, numResults, lastInsertId, affectedRows
+     *
+     * @var array Query datas
+     */
+    private $_data = array();
+
+
+    /**
+     * Connects to database
+     */
+    public function __construct(){
+        /**
+         * Create a database object
+         */
+        if(!$this->_db){
+            $this->_db = DB_Connect::getConnection();
+        }
+    }
+
+
+    /**
+     * Insert into table
+     *
+     * @param   string   $table  Name of table
+     * @param   array   $params Fields to be inserted with value
+     * @return  bool            Row updated or not
+     */
+    public function insert($table, array $params){
+        $this->initData();
+        $this->_params = $params;
+        $this->extractKeys();
+        $this->_sql = 'INSERT INTO '.
+                    '`' . $table . '` '.  '(`'. implode('`, `', $this->_keys) . '`) '.
+                'VALUES '.
+                    '(:' . implode(', :', $this->_keys) . ')';
+        $res = $this->query();
+        $this->_data['lastInsertId'] = $this->_db->lastInsertId();
+        $this->_db->commit();
+        $this->_stmt->closeCursor();
+        return $res; 
+    }
+
+    /**
+     * Extract array keys
+     */
+    private function extractKeys(){
+        $keys = array();
+        foreach($this->_params as $key => $value){
+            $exp = explode(' ', $key);
+            array_push($keys, $exp[1]);
+        }
+        $this->_keys = $keys;
+        $this->_data['keys'] = $keys;
+    } 
+
+    /**
+     * Extract data types
+     */
+    private function extractDataTypes(){
+        $dataTypes = array();
+        foreach($this->_params as $key => $value){
+            $exp = explode(' ', $key);
+            array_push($dataTypes, strtoupper($exp[0]));
+        }
+        $this->_dataTypes = $dataTypes;
+    } 
+
+    /**
+     * Perform SQL query
+     *
+     * @return bool SQL Query sucessfully executed or not
+     */
+    private function query(){
+        $this->_data['lastQuery'] = $this->_sql;
+        try {
+            $this->_stmt = $this->_db->prepare($this->_sql);
+            $this->_db->beginTransaction();
+            $this->bindParams();     
+            $this->_stmt->execute();
+            return true;
+        } catch(Exception $e){
+            $this->_db->rollback();
+            $this->_data['lastError'] = $e->getMessage();
+            Error_Report\logger(__CLASS__, 'fatal', $e->getMessage(), 'Could not complete your request :(');
+            return false;
+        }
+    }
+
+    /**
+     * Bind paramaters before executing SQL statements
+     */
+    private function bindParams(){
+        $this->extractDataTypes();
+        $i = 0;
+        foreach($this->_params as $key => $value){
+            switch($this->_dataTypes[$i]){
+            case 'BOOL':
+                $this->_stmt->bindParam(':'.$this->_keys[$i], $this->_params[$key], PDO::PARAM_BOOL);
+                break;
+            case 'NULL':
+                $this->_stmt->bindParam(':'.$this->_keys[$i], $this->_params[$key], PDO::PARAM_NULL);
+                break;
+            case 'INT':
+                $this->_stmt->bindParam(':'.$this->_keys[$i], $this->_params[$key], PDO::PARAM_INT);
+                break;
+            case 'STR':
+                $this->_stmt->bindParam(':'.$this->_keys[$i], $this->_params[$key], PDO::PARAM_STR);
+                break;
+            case 'LOB':
+                $this->_stmt->bindParam(':'.$this->_keys[$i], $this->_params[$key], PDO::PARAM_LOB);
+                break;
+            case 'STMT':
+                $this->_stmt->bindParam(':'.$this->_keys[$i], $this->_params[$key], PDO::PARAM_STMT);
+                break;
+            case 'INPUT_OUTPUT':
+                $this->_stmt->bindParam(':'.$this->_keys[$i], $this->_params[$key], PDO::PARAM_INPUT_OUTPUT);
+                break;
+            }
+            ++$i;
+        } 
+    }
+
+    /**
+     * Set $_data to null
+     */
+    private function initData(){
+        foreach($this->_data as $key => $value){
+            $this->_data[$key] = null;
+        }
+    }
+
+    /**
+     * Perform a SQL query
+     *
+     * @param   string   $sql    A SQL statement
+     * @return  bool            SQL statement sucessfully executed or not
+     */
+    public function sql($sql){
+        $this->initData();
+        $this->_sql = $sql;
+        $this->_data['lastQuery'] = $sql;
+        try {
+            $this->_stmt = $this->_db->prepare($this->_sql);
+            $this->_db->beginTransaction();
+            $this->_stmt->execute();
+            $this->_data['keys'] = array_keys($this->_stmt->fetch(PDO::FETCH_ASSOC));
+            $this->_data['results'] = $this->_stmt->fetchAll(PDO::FETCH_ASSOC);
+            $this->_data['numResults'] = count($this->_data['results']);
+            $this->_db->commit();
+            $this->_stmt->closeCursor();
+            return true;
+        } catch(Exception $e){
+            $this->_db->rollBack();
+            $this->_data['lastError'] = $e->getMessage();
+            Error_Report\logger(__CLASS__, 'fatal', $e->getMessage(), 'Could not complete your request :(');
+            return false;
+        }
+    }
+
+    /**
+     * Update table row
+     *
+     * @param   string   $table  Name of table
+     * @param   array   $params Fields to be changed with value
+     * @param   string  $where  Update condition
+     * @return  bool            Row updated or not
+     */
+    public function update($table, $params, $where=''){
+        $this->initData();
+        $this->_params = $params;
+        $this->extractKeys();
+        $this->_sql = 'UPDATE `'.$table.'` SET ';
+        foreach($this->_keys as $key){
+            $this->_sql .= '`'.$key.'`=:'.$key.', ';
+        }
+        $this->_sql = rtrim($this->_sql, ', ');
+
+        if(!empty($where)){
+            $this->_sql .= ' WHERE '.$where;
+        }
+        
+        $this->query();
+        $this->_data['affectedRows'] = $this->_stmt->rowCount();
+        $this->_db->commit();
+        $this->_stmt->closeCursor();
+        return $this->_data['affectedRows'] != 0 ? true : false;
+    }
+
+    /**
+     * Delete from table
+     *
+     * @param   string $table  Name of table
+     * @param   int   $int    Id of row
+     * @return  bool          Row deleted or not
+     */
+    public function delete($table, $id){
+        $this->initData();
+        $this->_sql = 'DELETE FROM `'. $table .'` WHERE `id`=:id LIMIT 1';
+        $this->_data['lastQuery'] = $this->_sql;
+        try {
+            $this->_stmt = $this->_db->prepare($this->_sql);
+            $this->_db->beginTransaction();
+            $this->_stmt->bindParam(":id", $id, PDO::PARAM_INT);
+            $this->_stmt->execute();
+            $this->_data['affectedRows'] = $this->_stmt->rowCount();
+            $this->_db->commit();
+            $this->_stmt->closeCursor();
+            return $this->_data['affectedRows'] != 0 ? true : false;
+        } catch(Exception $e){
+            $this->_db->rollBack();
+            $this->_data['lastError'] = $e->getMessage();
+            Error_Report\logger(__CLASS__, 'fatal', $e->getMessage(), 'Could not complete your request :(');
+            return false;
+        }
+    }
+
+    /**
+     * Database get methods
+     *
+     * @param   string      $name   Name of variable
+     * @return  string|int          Database query resullt
+     */
+    public function __get($name){
+        if (array_key_exists($name, $this->_data)) {
+            return $this->_data[$name];
+        }
+
+        $trace = debug_backtrace();
+        trigger_error(
+            'Undefined property via __get(): ' . $name .
+            ' in ' . $trace[0]['file'] .
+            ' on line ' . $trace[0]['line'],
+            E_USER_NOTICE);
+        return null;
+    }
+}
