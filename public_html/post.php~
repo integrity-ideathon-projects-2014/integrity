@@ -6,16 +6,31 @@ include_once('../lib/core/init.inc.php');
 
 $db = new Database; 
 $status = array();
-$ar = array(
-    'str usernamew' => $_POST['username'],
-    'str password' => $_POST['password'],
-    'str name' => $_POST['username'],
-    'str email' => $_POST['email']);
 
-if( $db->insert('user',$ar)){
-    $status['success'] = 'submited';
+$v = $_POST['video_id'];
+$t = intval($_POST['time']);
+$e = $_POST['ethic_id'];
+$sql = "SELECT * FROM points WHERE video_id='".$v.'";
+$db->sql($sql);
+$score = 0;
+if($db->numResults >=1){
+	$res = $db->results;
+	print_r($res);
+
+/*
+
+$ar = array(
+	'int test_id' => $_POST['test_id'],
+	'int user_id' => $_POST['user_id'],
+	'int video_id' => $_POST['video_id'],
+	'int integrity_type' => $_POST['integrity_type'],
+	'int time' => $_POST['time'],
+	'int ethic_id' => $_POST['ethic_id'],
+	'int score' => $score);
+if($db->insert('test_record',$ar)){
+	$status['msg'] = 'yes';
 }else{
-    $status['success'] = 'not submitted';
+	$status['msg'] = 'no';
 }
 
-echo json_encode($status);
+echo json_encode($status);*/

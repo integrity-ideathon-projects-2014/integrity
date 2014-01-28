@@ -6,16 +6,20 @@ include_once('../lib/core/init.inc.php');
 
 $db = new Database; 
 $status = array();
-$ar = array(
-    'str username' => $_POST['username'],
-    'str password' => $_POST['password'],
-    'str name' => $_POST['username'],
-    'str email' => $_POST['email']);
 
-if( $db->insert('user',$ar)){
-    $status['success'] = 'submited';
+
+$ar = array(
+	'int test_id' => $_POST['test_id'],
+	'int user_id' => $_POST['user_id'],
+	'int video_id' => $_POST['video_id'],
+	'int integrity_type' => $_POST['integrity_type'],
+	'int time' => $_POST['time'],
+	'int ethic_id' => $_POST['ethic_id']);
+
+if($db->insert('test_record',$ar)){
+	$status['msg'] = 'yes';
 }else{
-    $status['success'] = 'not submitted';
+	$status['msg'] = 'no';
 }
 
 echo json_encode($status);
